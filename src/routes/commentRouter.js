@@ -1,9 +1,10 @@
 const { Router } = require('express');
 const { isValidObjectId } = require('mongoose');
-const { Blog } = require('../models/Blog');
 const commentRouter = Router({ mergeParams: true }); // 앞부분 경로변수를 가져오기 위해서
 const { Comment } = require('../models/Comment');
-const { User } = require('../models/User');
+// const { Blog } = require('../models/Blog');
+// const { User } = require('../models/User');
+const { Blog, User } = require('../models');
 
 commentRouter.post('/', async (req, res) => {
   try {
@@ -19,8 +20,9 @@ commentRouter.post('/', async (req, res) => {
       return res.status(400).send({ err: 'content is required' });
     }
 
-    const blog = await Blog.findById(blogId);
-    const user = await User.findById(userId);
+    const [blog, user] = await Promise.all([await Blog.findById(blogId), await User.findById(userId)]);
+    // const blog = await Blog.findById(blogId);
+    // const user = await User.findById(userId);
     if (!blog || !user) {
       return res.status(400).send({ err: 'blog or user does not exist' });
     }
@@ -29,12 +31,21 @@ commentRouter.post('/', async (req, res) => {
     }
 
     const comment = new Comment({ content, user, blog });
+    await comment.save();
     return res.send({ comment });
   } catch (err) {
     return res.status(400).send({ err: err.message });
   }
 });
 
-commentRouter.get('/', async (req, res) => {});
+commentRouter.get('/', async (req, res) => {
+  const { blogId } = req.params;
+  if (!isValidObjectId(blogId)) {
+    return res.status(400).send({ err: 'blogId is invalid' });
+  }
+
+  const comments = await Comment.find({ blog: blogId });
+  return res.send({ comments });
+});
 
 module.exports = { commentRouter };

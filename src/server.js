@@ -2,9 +2,9 @@ const { ObjectId } = require('bson');
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const { userRouter } = require('./routes/userRouter');
-const { blogRouter } = require('./routes/blogRouter');
-const { commentRouter } = require('./routes/commentRouter');
+// const { userRouter } = require('./routes/userRouter');
+// const { blogRouter } = require('./routes/blogRouter');
+const { userRouter, blogRouter } = require('./routes');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -22,7 +22,6 @@ const server = async () => {
     // Routers
     app.use('/user', userRouter); // - UserRouter
     app.use('/blog', blogRouter); // - BlogRouter
-    app.use('/blog/:blogId/comment', commentRouter); // - CommentRouter
 
     // Port
     app.listen(process.env.PORT, () => {

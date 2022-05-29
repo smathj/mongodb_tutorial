@@ -1,7 +1,9 @@
 const { Router } = require('express');
 const blogRouter = Router();
-const { Blog } = require('../models/Blog'); // Model
-const { User } = require('../models/User'); // Model
+// const { Blog } = require('../models/Blog'); // Model
+// const { User } = require('../models/User'); // Model
+const { Blog, User } = require('../models'); // Model
+
 const { isValidObjectId } = require('mongoose');
 const { commentRouter } = require('./commentRouter');
 
