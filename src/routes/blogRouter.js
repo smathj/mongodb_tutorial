@@ -3,6 +3,10 @@ const blogRouter = Router();
 const { Blog } = require('../models/Blog'); // Model
 const { User } = require('../models/User'); // Model
 const { isValidObjectId } = require('mongoose');
+const { commentRouter } = require('./commentRouter');
+
+// blogRouter 하위에 commonRouter Router 추가
+blogRouter.use('/:blogId/comment', commentRouter);
 
 // [POST] blog 생성
 blogRouter.post('/', async (req, res) => {
