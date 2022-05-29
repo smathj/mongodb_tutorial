@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const User = require('./models/User'); // 모델(컬렉션 접근 db.users.xxx)
+const { User } = require('./models/User'); // 모델(컬렉션 접근 db.users.xxx)
 
 const users = [];
 
@@ -18,15 +18,35 @@ const server = async () => {
     // request body데이터의 json데이터를 가져오기위해서 ( 옛날의 bodyParser임 )
     app.use(express.json());
 
-    app.post('/user', (req, res) => {
-      let user = req.body;
-      users.push({ user });
-      console.log(user);
-      return res.send({ success: true });
+    // ! [Get] /user
+    app.get('/user', async (req, res) => {
+      try {
+        const users = await User.find();
+        return res.send({ users });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).send({ err: err.message });
+      }
     });
 
-    app.get('/user', (req, res) => {
-      return res.send({ users });
+    // ! [Post] /user
+    app.post('/user', async (req, res) => {
+      try {
+        let { username, name } = req.body;
+        if (!username)
+          return res.status(400).send({ err: 'username is required' });
+        if (!name || !name.first || !name.last)
+          return res
+            .status(400)
+            .send({ err: 'Both first and last names are required' });
+        const user = new User(req.body);
+        console.log(user);
+        await user.save();
+        return res.send({ user });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).send({ err: err.message });
+      }
     });
 
     app.listen(3000, () => {

@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 // 모델과 스키마를 만들거임
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new Schema(
   {
     username: { type: String, required: true },
     name: {
@@ -18,6 +18,6 @@ const UserSchema = new mongoose.Schema(
 // 몽구스에 알려주기
 // user라는 컬렉션에, 스키마가 이렇게 들어갈꺼야-
 // 실제 컬렉션은 "users" 복수형태로 생성된다
-const User = mongoose.model('user', UserSchema);
+const User = model('user', UserSchema);
 
-module.export = { User };
+module.exports = { User };
