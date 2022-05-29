@@ -1,8 +1,18 @@
 const express = require('express');
 const app = express();
 
-app.get('/', (req, res) => {
-  return res.send('Hello world');
+const users = [];
+
+// request body데이터의 json데이터를 가져오기위해서
+app.use(express.json());
+
+app.get('/user', (req, res) => {
+  return res.send({ users });
+});
+
+app.post('/user', (req, res) => {
+  users.push({ name: req.body.name, age: req.body.age });
+  return res.send({ success: true });
 });
 
 app.listen(3000, () => {
