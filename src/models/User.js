@@ -4,7 +4,7 @@ const { Schema, model } = require('mongoose');
 
 const UserSchema = new Schema(
   {
-    username: { type: String, required: true },
+    username: { type: String, required: true, unique: true }, // 고유하게 만들기위해서 unique: true 설정 (pk화)
     name: {
       first: { type: String, required: true },
       last: { type: String, required: true },
