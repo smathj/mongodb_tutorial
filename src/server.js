@@ -15,7 +15,7 @@ const server = async () => {
       dbName: process.env.DB_NAME,
     });
 
-    // mongoose.set('debug', true); // 몽구스 디버깅 모드
+    mongoose.set('debug', true); // 몽구스 디버깅 모드
     // await generateFakeData(100, 10, 300);
     console.log('MongoDB Connected');
 

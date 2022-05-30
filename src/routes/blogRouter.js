@@ -38,7 +38,9 @@ blogRouter.post('/', async (req, res) => {
 //! [GET] 전체 Blog 조회
 blogRouter.get('/', async (req, res) => {
   try {
-    const blogs = await Blog.find().limit(10);
+    const blogs = await Blog.find()
+      .limit(20)
+      .populate([{ path: 'user' }]);
     return res.status(200).send({ blogs });
   } catch (err) {
     console.log(err);
