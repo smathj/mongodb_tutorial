@@ -6,14 +6,17 @@ const mongoose = require('mongoose');
 // const { blogRouter } = require('./routes/blogRouter');
 const { userRouter, blogRouter } = require('./routes');
 const dotenv = require('dotenv');
+const { generateFakeData } = require('../faker');
 dotenv.config();
 
 const server = async () => {
   try {
-    let mongodbConnection = await mongoose.connect(process.env.MONGO_URI, {
+    await mongoose.connect(process.env.MONGO_URI, {
       dbName: process.env.DB_NAME,
     });
-    mongoose.set('debug', true); // 몽구스 디버깅 모드
+
+    // mongoose.set('debug', true); // 몽구스 디버깅 모드
+    // await generateFakeData(100, 10, 300);
     console.log('MongoDB Connected');
 
     // request body데이터의 json데이터를 가져오기위해서 ( 옛날의 bodyParser임 )
