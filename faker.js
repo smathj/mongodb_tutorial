@@ -2,9 +2,12 @@ const faker = require('faker');
 const { User, Blog, Comment } = require('./src/models');
 
 generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
-  if (typeof userCount !== 'number' || userCount < 1) throw new Error('userCount must be a positive integer');
-  if (typeof blogsPerUser !== 'number' || blogsPerUser < 1) throw new Error('blogsPerUser must be a positive integer');
-  if (typeof commentsPerUser !== 'number' || commentsPerUser < 1) throw new Error('commentsPerUser must be a positive integer');
+  if (typeof userCount !== 'number' || userCount < 1)
+    throw new Error('userCount must be a positive integer');
+  if (typeof blogsPerUser !== 'number' || blogsPerUser < 1)
+    throw new Error('blogsPerUser must be a positive integer');
+  if (typeof commentsPerUser !== 'number' || commentsPerUser < 1)
+    throw new Error('commentsPerUser must be a positive integer');
   const users = [];
   const blogs = [];
   const comments = [];
@@ -13,7 +16,8 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
   for (let i = 0; i < userCount; i++) {
     users.push(
       new User({
-        username: faker.internet.userName() + parseInt(Math.random() * 100),
+        username:
+          faker.internet.userName() + parseInt(Math.random() * 100000000000),
         name: {
           first: faker.name.firstName(),
           last: faker.name.lastName(),
@@ -44,6 +48,8 @@ generateFakeData = async (userCount, blogsPerUser, commentsPerUser) => {
         new Comment({
           content: faker.lorem.sentence(),
           user,
+          // v2.
+          userFullName: `${user.name.first} ${user.name.last}`,
           blog: blogs[index]._id,
         })
       );

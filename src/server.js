@@ -31,7 +31,9 @@ const server = async () => {
       console.log(
         'server listening on port 3000, link = http://localhost:3000'
       );
-      // await generateFakeData(3, 5, 20); // faker 2
+      // await generateFakeData(1000000, 5, 20); // faker 1,2
+      // await generateFakeData(10, 5, 5); // faker 1,2
+      // await generateFakeData(10, 10, 10); // faker 1,2
     });
   } catch (err) {
     console.log(err);

@@ -20,7 +20,7 @@ const BlogSchema = new Schema(
       },
     },
     // v2.
-    comments: [CommentSchema],
+    comments: [CommentSchema], // 배열형태에-
 
     // user: { type: Types.ObjectId, required: true, ref: 'user' }, // user는 관계형
     // user는 User 모델의 21번 라인의 'user'와 일치해야한다
@@ -28,16 +28,21 @@ const BlogSchema = new Schema(
   { timestamps: true } // 타임스탬프 추가하기
 );
 
+// index추가
+BlogSchema.index({ 'user._id': 1, updatedAt: 1 }); // 복합키
+//BlogSchema.index({ 'user._id': 1, updatedAt: 1 },  { unique: true}); // 복합키, 유니크는 이렇게함
+
 //! v1.comments라는 가상 필드 추가
-// BlogSchema.virtual('comments', {
-//   ref: 'comment', // comment 도큐먼트을 참조
-//   localField: '_id', // 기본적으로 _id가 만들어지니까 (blog의 _id)
-//   foreignField: 'blog', // comment 도큐먼트의 blog가 포렌키역할 (pk는 comment's _id 겠지)
-// });
+/** 
+BlogSchema.virtual('comments', {  // 가상 칼럼 comments 생성
+  ref: 'comment', // comment 도큐먼트(모델 이름, 테이블)을 참조
+  localField: '_id', // 기본적으로 _id가 만들어지니까 (blog의 _id)
+  foreignField: 'blog', // comment 도큐먼트의 blog가 포렌키역할 (pk는 comment's _id 겠지)
+});
 
-// BlogSchema.set('toObject', { virtuals: true });
-// BlogSchema.set('toJSON', { virtuals: true });
-
+BlogSchema.set('toObject', { virtuals: true });
+BlogSchema.set('toJSON', { virtuals: true });
+*/
 const Blog = model('blog', BlogSchema);
 
 module.exports = { Blog };
