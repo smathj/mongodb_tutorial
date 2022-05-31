@@ -6,7 +6,7 @@ const { Comment } = require('../models/Comment');
 // const { User } = require('../models/User');
 const { Blog, User } = require('../models');
 
-// * Comment 생성
+//! Comment 생성
 commentRouter.post('/', async (req, res) => {
   try {
     const { blogId } = req.params;
@@ -30,7 +30,12 @@ commentRouter.post('/', async (req, res) => {
     if (!blog.islive)
       return res.status(400).send({ err: 'blog is not available' });
 
-    const comment = new Comment({ content, user, blog });
+    const comment = new Comment({
+      content,
+      user,
+      userFullName: `${user.name.first} ${user.name.last}`, // v2. userFullName 추가
+      blog,
+    });
     // v1.
     // await comment.save();
 
@@ -46,7 +51,7 @@ commentRouter.post('/', async (req, res) => {
   }
 });
 
-// * Comment 조회
+//! Comment 조회
 commentRouter.get('/', async (req, res) => {
   const { blogId } = req.params;
   if (!isValidObjectId(blogId))
@@ -54,6 +59,29 @@ commentRouter.get('/', async (req, res) => {
 
   const comments = await Comment.find({ blog: blogId });
   return res.send({ comments });
+});
+
+/**
+ * ! Comment 수정
+ * Comment  자체 수정 후 Blog의 comments 배열에도 똑같이 수정해준다
+ */
+commentRouter.patch('/:commentId', async (req, res) => {
+  const { commentId } = req.params;
+  const { content } = req.body;
+
+  if (typeof content !== 'string')
+    return res.status(400).send({ err: 'content is required' });
+
+  const [comment] = await Promise.all([
+    Comment.findOneAndUpdate({ _id: commentId }, { content }, { new: true }),
+    // comments 배열안에 _id를 갖은 객체
+    Blog.updateOne(
+      { 'comments._id': commentId },
+      { 'comments.$.content': content } // 조건(_id)에 만족하는 인덱스를  $ 로 가리킨다
+    ),
+  ]);
+
+  return res.send({ comment });
 });
 
 module.exports = { commentRouter };

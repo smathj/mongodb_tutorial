@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 // const { blogRouter } = require('./routes/blogRouter');
 const { userRouter, blogRouter } = require('./routes');
 const dotenv = require('dotenv');
-const { generateFakeData } = require('../faker');
+const { generateFakeData } = require('../faker2');
 dotenv.config();
 
 const server = async () => {
@@ -16,7 +16,7 @@ const server = async () => {
     });
 
     // mongoose.set('debug', true); // 몽구스 디버깅 모드
-    // await generateFakeData(100, 10, 300);
+    // await generateFakeData(100, 10, 300); // faker 1
     console.log('MongoDB Connected');
 
     // request body데이터의 json데이터를 가져오기위해서 ( 옛날의 bodyParser임 )
@@ -27,8 +27,11 @@ const server = async () => {
     app.use('/blog', blogRouter); // - BlogRouter
 
     // Port
-    app.listen(process.env.PORT, () => {
-      console.log('server listening on port 3000, link = http://localhost:3000');
+    app.listen(process.env.PORT, async () => {
+      console.log(
+        'server listening on port 3000, link = http://localhost:3000'
+      );
+      // await generateFakeData(3, 5, 20); // faker 2
     });
   } catch (err) {
     console.log(err);

@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const userRouter = Router();
 // const { User } = require('../models/User'); // 모델(컬렉션 접근 db.users.xxx)
-const { User } = require('../models'); // 모델(컬렉션 접근 db.users.xxx)
+const { User, Blog } = require('../models'); // 모델(컬렉션 접근 db.users.xxx)
 const mongoose = require('mongoose');
 
 // ! [Get] /user
@@ -62,7 +62,11 @@ userRouter.put('/:userId', async (req, res) => {
     if (age && typeof age !== 'number') {
       return res.status(400).send({ err: 'age must be a number' });
     }
-    if (name && typeof name.first !== 'string' && typeof name.last !== 'string') {
+    if (
+      name &&
+      typeof name.first !== 'string' &&
+      typeof name.last !== 'string'
+    ) {
       return res.status(400).send({ err: 'first and last name are strings' });
     }
     // v1.
@@ -78,10 +82,25 @@ userRouter.put('/:userId', async (req, res) => {
     // );
 
     // v2. 몽구스 스키마 체크 하도록
-    let user = await User.findById(userId);
+    let user = await User.findById(userId); // user 찾기
     console.log({ userBeforeEdit: user });
     if (age) user.age = age;
-    if (name) user.name = name;
+    if (name) {
+      // user의 name 수정
+      user.name = name;
+      Promise.all([
+        // user의 name 수정
+        Blog.updateMany({ 'user._id': userId }, { 'user.name': name }),
+        // Blog에서 comments 배열안에있는ㄴ user의 userFullName 수정
+        Blog.updateMany(
+          {},
+          { 'comments.$[comment].userFullName': `${name.first} ${name.last}` },
+          {
+            arrayFilters: [{ 'comment.user': userId }], // [필터링] 이거에 해당하는것만 유저풀네임 바꿔주세요
+          }
+        ),
+      ]);
+    }
     console.log({ userAfterEdit: user });
     await user.save(); // users.updateOne 이 호출
 
@@ -97,7 +116,10 @@ userRouter.post('/', async (req, res) => {
   try {
     let { username, name } = req.body;
     if (!username) return res.status(400).send({ err: 'username is required' });
-    if (!name || !name.first || !name.last) return res.status(400).send({ err: 'Both first and last names are required' });
+    if (!name || !name.first || !name.last)
+      return res
+        .status(400)
+        .send({ err: 'Both first and last names are required' });
     const user = new User(req.body);
     console.log(user);
     await user.save();
