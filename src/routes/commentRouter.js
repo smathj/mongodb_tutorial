@@ -84,4 +84,19 @@ commentRouter.patch('/:commentId', async (req, res) => {
   return res.send({ comment });
 });
 
+/**
+ * ! Comment 삭제
+ */
+commentRouter.delete('/:commentId', async (req, res) => {
+  const { commentId } = req.params;
+  const comment = await Comment.findOneAndDelete({ _id: commentId });
+  // Blog에있는 comments 배열에있는 comment 삭제 해야함
+  await Blog.updateOne(
+    { '$comments._id': commentId }, // 조건(블로그에서 comments 배열에서 조건을 만족하는 특정 comment)
+    { $pull: { comments: { _id: commentId } } } // 꺼내는 타켓 ( 배열을 꺼낸다(삭제))
+    // { $pull: { comments: $eleMath{ content: "hello", state: true} } } // 동시 조건을충족 해야할때 $eleMath 사용
+  );
+  return res.send({ comment });
+});
+
 module.exports = { commentRouter };

@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const userRouter = Router();
 // const { User } = require('../models/User'); // 모델(컬렉션 접근 db.users.xxx)
-const { User, Blog } = require('../models'); // 모델(컬렉션 접근 db.users.xxx)
+const { User, Blog, Comment } = require('../models'); // 모델(컬렉션 접근 db.users.xxx)
 const mongoose = require('mongoose');
 
 // ! [Get] /user
@@ -38,8 +38,23 @@ userRouter.delete('/:userId', async (req, res) => {
     if (!mongoose.isValidObjectId(userId)) {
       return res.status(400).send({ err: 'Invalid userId' });
     }
-    const user = await User.findOneAndDelete({ _id: userId });
+    // const user = await User.findOneAndDelete({ _id: userId });
     // const user = await User.findOne({ _id: ObjectId(userId) }); // 이렇게도 사용할 수 있음
+
+    const [user] = await Promise.all([
+      // 사용자 삭제
+      User.findOneAndDelete({ _id: userId }),
+      // 해당유저가 여러 Blog에다 작성한 comment 배열에서 빼버리기(삭제)
+      Blog.deleteMany({ 'user._id': userId }),
+      // 해당유저가 작성한 Blog들 전체 삭제
+      Blog.updateMany(
+        { '$comments.user': userId }, // comment라는 배열에 user라는 프로퍼티의 값이 userId인 것을 대상으로
+        { $pull: { comments: { user: userId } } } // comments의 배열에서 user가 userId와 같은것을 제거한다
+      ),
+      // 해당유저가 작성한 Blog들 전체 삭제
+      Comment.deleteMany({ user: userId }),
+    ]);
+
     return res.send({ user }); // 삭제된 user 확인하기위해서 findOneAndDelete
   } catch (err) {
     console.log(err);
