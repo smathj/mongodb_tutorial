@@ -11,7 +11,7 @@ const { commentRouter } = require('./commentRouter');
 // blog에 달린 comment 찾기
 blogRouter.use('/:blogId/comment', commentRouter);
 
-//! [POST] blog 생성
+// [POST] blog 생성
 blogRouter.post('/', async (req, res) => {
   try {
     const { title, content, islive, userId } = req.body;
@@ -35,12 +35,13 @@ blogRouter.post('/', async (req, res) => {
   }
 });
 
-//! [GET] 전체 Blog 조회
+// [GET] 전체 Blog 조회
 blogRouter.get('/', async (req, res) => {
   try {
+    //! #### Populate로 성능 최적화 ####
     const blogs = await Blog.find()
-      .limit(20)
-      .populate([{ path: 'user' }]);
+      .limit(200)
+      .populate([{ path: 'user' }, { path: 'comments', populate: [{ path: 'user' }] }]);
     return res.status(200).send({ blogs });
   } catch (err) {
     console.log(err);
@@ -48,7 +49,7 @@ blogRouter.get('/', async (req, res) => {
   }
 });
 
-//! [GET] 상세 Blog 조회
+// [GET] 상세 Blog 조회
 blogRouter.get('/:blogId', async (req, res) => {
   try {
     const { blogId } = req.params;
@@ -61,7 +62,7 @@ blogRouter.get('/:blogId', async (req, res) => {
   }
 });
 
-//! [PUT] 전체 수정
+// [PUT] 전체 수정
 blogRouter.put('/:blogId', async (req, res) => {
   try {
     const { blogId } = req.params;
@@ -79,7 +80,7 @@ blogRouter.put('/:blogId', async (req, res) => {
   }
 });
 
-//! [PATCH] 특정 부분 수정
+// [PATCH] 특정 부분 수정
 blogRouter.patch('/:blogId/live', async (req, res) => {
   try {
     const { blogId } = req.params;

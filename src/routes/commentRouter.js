@@ -6,7 +6,7 @@ const { Comment } = require('../models/Comment');
 // const { User } = require('../models/User');
 const { Blog, User } = require('../models');
 
-// ! Comment 생성
+// Comment 생성
 commentRouter.post('/', async (req, res) => {
   try {
     const { blogId } = req.params;
@@ -30,7 +30,7 @@ commentRouter.post('/', async (req, res) => {
   }
 });
 
-// ! Comment 조회
+// Comment 조회
 commentRouter.get('/', async (req, res) => {
   const { blogId } = req.params;
   if (!isValidObjectId(blogId)) return res.status(400).send({ err: 'blogId is invalid' });

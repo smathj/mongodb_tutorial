@@ -8,8 +8,8 @@ const test = async () => {
   // 블로그 리스트 조회
   let {
     data: { blogs },
-  } = await axios.get(`${URI}/blog`);
-  console.log(blogs);
+  } = await axios.get(`${URI}/blog`); //! [GET] 전체 Blog 조회
+  // console.dir(blogs[0], { depth: 10 }); // 진짜 빠르다
   //   blogs = await Promise.all(
   //     blogs.map(async (blog) => {
   //       // 블로그 작성한 사용자로, 사용자 조회
@@ -41,6 +41,14 @@ const test = async () => {
 // test();
 
 const testGroup = async () => {
+  await test();
+  await test();
+  await test();
+  await test();
+  await test();
+  await test();
+  await test();
+  await test();
   await test();
 };
 testGroup();
