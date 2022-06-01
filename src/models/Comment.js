@@ -17,6 +17,9 @@ const CommentSchema = new Schema(
   { timestamps: true } // 타임스탬프 추가하기
 );
 
+// blog, createdAt 인덱싱
+CommentSchema.index({ blog: 1, createdAt: -1 });
+
 const Comment = model('comment', CommentSchema);
 
 module.exports = { Comment, CommentSchema };

@@ -23,6 +23,7 @@ commentRouter.post('/', async (req, res) => {
       await Blog.findById(blogId),
       await User.findById(userId),
     ]);
+
     // const blog = await Blog.findById(blogId);
     // const user = await User.findById(userId);
     if (!blog || !user)
@@ -34,15 +35,31 @@ commentRouter.post('/', async (req, res) => {
       content,
       user,
       userFullName: `${user.name.first} ${user.name.last}`, // v2. userFullName 추가
-      blog,
+      // blog, // v1.
+      blog: blogId, // v2.
     });
     // v1.
     // await comment.save();
 
     // v2. blog 컬렉션의 comments 필드에도 푸쉬해주고, comment 컬렉션 자체에도 저장한다 ( 2번 저장 하긴 함 )
-    Promise.all([
+    // Promise.all([
+    //   comment.save(),
+    //   Blog.updateOne({ _id: blogId }, { $push: { comments: comment } }), // Blog에 내장
+    // ]);
+
+    // v3. Blog 내장하지 않고  Comment만 저장
+    // await comment.save();
+
+    // a2.
+    blog.commentsCount++;
+    blog.comments.push(comment);
+    if (blog.commentsCount > 3) blog.comments.shift(); // 맨앞에꺼(가장오래된거) 삭제
+
+    await Promise.all([
       comment.save(),
-      Blog.updateOne({ _id: blogId }, { $push: { comments: comment } }),
+      blog.save(),
+      // a1.
+      // Blog.updateOne({ _id: blogId }, { $inc: { commentCount: 1 } }), // commentCount 1만큼 증가
     ]);
 
     return res.send({ comment });
@@ -53,11 +70,17 @@ commentRouter.post('/', async (req, res) => {
 
 //! Comment 조회
 commentRouter.get('/', async (req, res) => {
+  let { page = 0 } = req.query;
+  page = parseInt(page);
+
   const { blogId } = req.params;
   if (!isValidObjectId(blogId))
     return res.status(400).send({ err: 'blogId is invalid' });
 
-  const comments = await Comment.find({ blog: blogId });
+  const comments = await Comment.find({ blog: blogId })
+    .sort({ createdAt: -1 })
+    .skip(page * 3)
+    .limit(3);
   return res.send({ comments });
 });
 

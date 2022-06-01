@@ -19,11 +19,14 @@ const BlogSchema = new Schema(
         last: { type: String, required: true },
       },
     },
-    // v2.
+    // v2. 내장 nest
     comments: [CommentSchema], // 배열형태에-
 
     // user: { type: Types.ObjectId, required: true, ref: 'user' }, // user는 관계형
     // user는 User 모델의 21번 라인의 'user'와 일치해야한다
+
+    // a1. Blog 스키마에 count 추가하기
+    commentsCount: { type: Number, default: 0, require: true },
   },
   { timestamps: true } // 타임스탬프 추가하기
 );
