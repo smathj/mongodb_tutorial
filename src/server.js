@@ -11,6 +11,7 @@ dotenv.config();
 
 const server = async () => {
   try {
+    if (!process.env.MONGO_URI) throw new Error('MONGO_URI is required!');
     await mongoose.connect(process.env.MONGO_URI, {
       dbName: process.env.DB_NAME,
     });
