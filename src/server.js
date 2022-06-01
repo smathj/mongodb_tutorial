@@ -32,7 +32,7 @@ const server = async () => {
     // Port
     app.listen(process.env.PORT, async () => {
       console.log(
-        'server listening on port 3000, link = http://localhost:3000'
+        `server listening on port 3000, link = http://localhost:${process.env.PORT}`
       );
       // console.time('insert time: ');
       // await generateFakeData(1000000, 5, 20); // faker 1,2
