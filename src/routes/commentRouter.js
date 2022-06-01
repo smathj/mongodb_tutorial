@@ -61,6 +61,8 @@ commentRouter.post('/', async (req, res) => {
     // v3. Blog 내장하지 않고  Comment만 저장
     // await comment.save();
 
+    // b1.
+    /*
     // a2.
     blog.commentsCount++;
     blog.comments.push(comment);
@@ -74,6 +76,19 @@ commentRouter.post('/', async (req, res) => {
       // Blog.updateOne({ _id: blogId }, { $inc: { commentCount: 1 } }), // commentCount 1만큼 증가
     ]);
     // });
+    */
+    // b2. 최신3개 남기고 다버리기
+    await Promise.all([
+      comment.save(),
+      Blog.updateOne(
+        { _id: blogId },
+        {
+          $inc: { commentsCount: 1 },
+          $push: { comments: { $each: [comment], $slice: -3 } },
+        }
+      ),
+    ]);
+
     return res.send({ comment });
   } catch (err) {
     return res.status(400).send({ err: err.message });
