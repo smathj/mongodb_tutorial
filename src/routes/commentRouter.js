@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { isValidObjectId } = require('mongoose');
+const { isValidObjectId, startSession } = require('mongoose');
 const commentRouter = Router({ mergeParams: true }); // 앞부분 경로변수를 가져오기 위해서
 const { Comment } = require('../models/Comment');
 // const { Blog } = require('../models/Blog');
@@ -8,7 +8,12 @@ const { Blog, User } = require('../models');
 
 //! Comment 생성
 commentRouter.post('/', async (req, res) => {
+  //? 🚩트랜잭션이 사용할 세션 생성
+  // const session = await startSession();
+  let comment;
   try {
+    //? 🚩
+    // await session.withTransaction(async () => {
     const { blogId } = req.params;
     const { content, userId } = req.body;
     // 필수값 체크
@@ -22,6 +27,8 @@ commentRouter.post('/', async (req, res) => {
     const [blog, user] = await Promise.all([
       await Blog.findById(blogId),
       await User.findById(userId),
+      // await Blog.findById(blogId, {}, { session }),
+      // await User.findById(userId, {}, { session }),
     ]);
 
     // const blog = await Blog.findById(blogId);
@@ -31,13 +38,17 @@ commentRouter.post('/', async (req, res) => {
     if (!blog.islive)
       return res.status(400).send({ err: 'blog is not available' });
 
-    const comment = new Comment({
+    comment = new Comment({
       content,
       user,
       userFullName: `${user.name.first} ${user.name.last}`, // v2. userFullName 추가
       // blog, // v1.
-      blog: blogId, // v2.
+      blog: blogId, // v2. 무한 루프때문에 blogId만 저장함
     });
+
+    //? 🚩
+    // await session.abortTransaction(); // 트랜잭션 중단, 세션에 저장된것 되돌리기
+
     // v1.
     // await comment.save();
 
@@ -53,18 +64,22 @@ commentRouter.post('/', async (req, res) => {
     // a2.
     blog.commentsCount++;
     blog.comments.push(comment);
-    if (blog.commentsCount > 3) blog.comments.shift(); // 맨앞에꺼(가장오래된거) 삭제
+    if (blog.commentsCount > 3) blog.comments.shift(); // 맨앞에꺼(가장오래된거) 삭제 (최신 3개의 데이터만 저장)
 
     await Promise.all([
       comment.save(),
-      blog.save(),
+      // comment.save({ session }),
+      blog.save(), // a2. 여기는 세션이 내장되어있음, 위에서 가져온거임
       // a1.
       // Blog.updateOne({ _id: blogId }, { $inc: { commentCount: 1 } }), // commentCount 1만큼 증가
     ]);
-
+    // });
     return res.send({ comment });
   } catch (err) {
     return res.status(400).send({ err: err.message });
+  } finally {
+    //? 🚩
+    // await session.endSession();
   }
 });
 
