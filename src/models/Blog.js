@@ -30,6 +30,9 @@ const BlogSchema = new Schema(
 
 // index추가
 BlogSchema.index({ 'user._id': 1, updatedAt: 1 }); // 복합키
+// text index: 컬렉션당 1개만 만들 수 있다, 단 복합키로서 여러개만들 수 있고 이때에는 순서는 중요하지 않음
+BlogSchema.index({ title: 'text', content: 'text' });
+
 //BlogSchema.index({ 'user._id': 1, updatedAt: 1 },  { unique: true}); // 복합키, 유니크는 이렇게함
 
 //! v1.comments라는 가상 필드 추가
